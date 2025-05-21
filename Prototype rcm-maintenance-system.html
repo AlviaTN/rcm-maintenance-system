@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RCM Maintenance Information System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #0b2340;
+      padding: 1rem 2rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #ffd100;
+      flex: 1 1 240px;
+      min-width: 180px;
+    }
+    .dashboard-summary {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      color: #fdd835;
+      font-weight: 600;
+      font-size: 1rem;
+      min-width: 240px;
+      justify-content: center;
+    }
+    .dashboard-summary div {
+      text-align: center;
+      background: #194a85dd;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      min-width: 70px;
+      box-shadow: 0 0 8px #fdd835aa;
+      cursor: default;
+      user-select: none;
+    }
+    main {
+      flex-grow: 1;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 1rem 2rem;
+      gap: 1.5rem;
+      justify-content: center;
+      background: #143a6e;
+    }
+    section {
+      background: #1e4d92dd;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      flex: 1 1 320px;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      min-height: 440px;
+    }
+    section h2 {
+      margin: 0 0 0.75rem 0;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #fdd835;
+      border-bottom: 2px solid #fdd835;
+      padding-bottom: 0.3rem;
+      user-select: none;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+      color: #fff;
+    }
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      box-shadow: 0 0 5px 2px #ffd100;
+      background: #ffffff11;
+      color: #fff;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    button {
+      background: #ffd100;
+      border: none;
+      padding: 0.6rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #143a6e;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 3px 8px #9a7e00cc;
+      margin-top: auto;
+      user-select: none;
+    }
+    button:hover,
+    button:focus {
+      background: #ffc107cc;
+      box-shadow: 0 4px 12px #ffca28dd;
+      outline: none;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      color: #f0f0f0;
+      cursor: default;
+      user-select: none;
+    }
+    th, td {
+      border: 1px solid #3f70cbdd;
+      padding: 0.4rem 0.8rem;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #2654aa;
+      cursor: pointer;
+      user-select: none;
+    }
+    th.sort-asc::after {
+      content: " ▲";
+      font-size: 0.6rem;
+    }
+    th.sort-desc::after {
+      content: " ▼";
+      font-size: 0.6rem;
+    }
+    tbody tr:nth-child(even) {
+      background: #1a3c7e88;
+    }
+    .small-text {
+      font-size: 0.8rem;
+      color: #ccc;
+      margin-top: 0.5rem;
+    }
+    canvas {
+      background: #143a6e;
+      border-radius: 8px;
+      box-shadow: inset 0 0 15px #0a2248;
+      margin-top: 0.7rem;
+    }
+    /* Scrollable table container */
+    .table-container {
+      overflow-x: auto;
+      max-height: 150px;
+      margin-top: 0.6rem;
+      border-radius: 6px;
+      background: #1e4e92aa;
+      padding: 0.25rem;
+      box-shadow: inset 0 0 10px #0b2353;
+    }
+    .search-container {
+      display: flex;
+      margin-bottom: 0.5rem;
+      gap: 0.5rem;
+    }
+    .search-container input {
+      flex-grow: 1;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+    .search-container input:focus {
+      box-shadow: 0 0 5px 2px #ffd100;
+      background: #ffffff11;
+      color: #fff;
+    }
+    .export-btn {
+      background: #1098f7;
+      color: #fff;
+      padding: 0.44rem 0.75rem;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 3px 8px #0b68cccc;
+      user-select: none;
+      flex-shrink: 0;
+      transition: background-color 0.3s ease;
+    }
+    .export-btn:hover,
+    .export-btn:focus {
+      background: #0b6bd5cc;
+      box-shadow: 0 4px 12px #0a50b8dd;
+      outline: none;
+    }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 220px;
+      background-color: #222;
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 0.5rem;
+      position: absolute;
+      z-index: 10;
+      bottom: 115%;
+      left: 50%;
+      margin-left: -110px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.8rem;
+      box-shadow: 0 0 5px rgba(255, 209, 0, 0.85);
+      user-select: none;
+    }
+    .tooltip:hover .tooltiptext,
+    .tooltip:focus-within .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>RCM Maintenance Information System</h1>
+    <div class="dashboard-summary" aria-live="polite" aria-atomic="true" aria-label="Dashboard summary">
+      <div id="totalAssets" tabindex="0" title="Total number of unique asset-failure mode combinations">Assets: 0</div>
+      <div id="highRiskAssets" tabindex="0" title="Number of assets with high risk priority number">High Risk: 0</div>
+      <div id="totalMaintenance" tabindex="0" title="Total maintenance records stored">Maintenance Records: 0</div>
+    </div>
+  </header>
+  <main>
+    <section id="asset-input">
+      <h2>Asset & Failure Input</h2>
+      <form id="assetForm" autocomplete="off">
+        <label for="assetName">Asset Name <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">Name of the asset being analyzed.</span>
+        </span></label>
+        <input type="text" id="assetName" name="assetName" required placeholder="Enter asset name" />
+
+        <label for="failureMode">Failure Mode <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">Type or mode of failure for this asset.</span>
+        </span></label>
+        <input type="text" id="failureMode" name="failureMode" required placeholder="Type of failure" />
+
+        <label for="failureEffect">Failure Effect <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">Describe the effect of failure on operations or safety.</span>
+        </span></label>
+        <textarea id="failureEffect" name="failureEffect" placeholder="Describe failure effect" rows="3"></textarea>
+
+        <label for="probability">Probability of Failure (1-10) <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">1 = very unlikely, 10 = very likely to occur.</span>
+        </span></label>
+        <input type="number" id="probability" name="probability" min="1" max="10" required />
+
+        <label for="severity">Severity (1-10) <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">1 = minor effect, 10 = catastrophic effect.</span>
+        </span></label>
+        <input type="number" id="severity" name="severity" min="1" max="10" required />
+
+        <label for="detectability">Detectability (1-10) <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">1 = almost certain to detect failure, 10 = unlikely to detect.</span>
+        </span></label>
+        <input type="number" id="detectability" name="detectability" min="1" max="10" required />
+
+        <button type="submit">Analyze Risk & Assign Strategy</button>
+      </form>
+    </section>
+
+    <section id="analysis-result">
+      <h2>Risk Analysis & Strategy</h2>
+
+      <div class="search-container" aria-label="Search assets">
+        <input type="text" id="searchAssets" placeholder="Search assets or failure modes" aria-label="Search assets or failure modes" />
+        <button type="button" id="exportAssetsCsv" class="export-btn" aria-label="Export assets data to CSV">Export CSV</button>
+      </div>
+
+      <div id="riskSummary" style="flex-grow:1; font-size:1rem; line-height:1.3; overflow: auto; max-height: 230px;"></div>
+      <canvas id="riskChart" width="400" height="250" aria-label="Risk Levels Chart"></canvas>
+    </section>
+
+    <section id="history-log">
+      <h2>Maintenance History</h2>
+
+      <form id="historyForm" autocomplete="off">
+        <label for="historyAsset">Asset Name <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">The asset related to this maintenance record.</span>
+        </span></label>
+        <input type="text" id="historyAsset" name="historyAsset" required placeholder="Asset name for maintenance log" />
+        <label for="maintenanceDate">Maintenance Date <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">Date when maintenance was performed.</span>
+        </span></label>
+        <input type="date" id="maintenanceDate" name="maintenanceDate" required />
+        <label for="maintenanceDesc">Maintenance Description <span class="tooltip" tabindex="0">ℹ
+          <span class="tooltiptext">Describe the maintenance performed.</span>
+        </span></label>
+        <textarea id="maintenanceDesc" name="maintenanceDesc" rows="3" placeholder="Describe maintenance activity"></textarea>
+        <button type="submit">Add Maintenance Record</button>
+      </form>
+
+      <div class="search-container" aria-label="Search maintenance records">
+        <input type="text" id="searchHistory" placeholder="Search maintenance by asset or description" aria-label="Search maintenance by asset or description" />
+        <button type="button" id="exportHistoryCsv" class="export-btn" aria-label="Export maintenance history data to CSV">Export CSV</button>
+      </div>
+
+      <div class="table-container" aria-live="polite" aria-atomic="true">
+        <table id="historyTable" role="grid" aria-label="Maintenance history table">
+          <thead>
+            <tr>
+              <th data-key="assetName" tabindex="0" aria-sort="none" scope="col">Asset</th>
+              <th data-key="date" tabindex="0" aria-sort="none" scope="col">Date</th>
+              <th data-key="description" tabindex="0" aria-sort="none" scope="col">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- maintenance history rows go here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (() => {
+      const assetForm = document.getElementById('assetForm');
+      const riskSummary = document.getElementById('riskSummary');
+      const riskChartCtx = document.getElementById('riskChart').getContext('2d');
+      const historyForm = document.getElementById('historyForm');
+      const historyTableBody = document.querySelector('#historyTable tbody');
+      const searchAssetsInput = document.getElementById('searchAssets');
+      const searchHistoryInput = document.getElementById('searchHistory');
+      const exportAssetsBtn = document.getElementById('exportAssetsCsv');
+      const exportHistoryBtn = document.getElementById('exportHistoryCsv');
+      const totalAssetsDiv = document.getElementById('totalAssets');
+      const highRiskAssetsDiv = document.getElementById('highRiskAssets');
+      const totalMaintenanceDiv = document.getElementById('totalMaintenance');
+
+      // Data storage in localStorage keys
+      const STORAGE_KEYS = {
+        ASSETS: 'rcm_assets',
+        MAINTENANCE_HISTORY: 'rcm_maintenance_history'
+      };
+
+      // Load arrays from localStorage or initialize
+      let assets = JSON.parse(localStorage.getItem(STORAGE_KEYS.ASSETS)) || [];
+      let maintenanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.MAINTENANCE_HISTORY)) || [];
+
+      // Sorting states for tables: { key: 'assetName', order: 'asc' }
+      let historySortState = { key: 'date', order: 'desc' };
+      let riskTableSortState = { key: 'rpn', order: 'desc' };
+
+      // RPN calculation: Risk Priority Number = Probability * Severity * Detectability
+      // Lower RPN means less risk; higher means higher risk.
+      // We'll categorize risk levels: Low (<=100), Medium (101-400), High (>400)
+
+      function calculateRPN(prob, sev, det) {
+        return prob * sev * det;
+      }
+
+      function assignStrategy(rpn) {
+        if (rpn > 400) return 'Immediate corrective maintenance & redesign evaluation';
+        else if (rpn > 100) return 'Scheduled preventive maintenance';
+        else return 'Condition-based or predictive maintenance';
+      }
+
+      function colorForRisk(rpn) {
+        if (rpn > 400) return '#e53935'; // red
+        else if (rpn > 100) return '#fbc02d'; // amber
+        else return '#43a047'; // green
+      }
+
+      function saveAssets() {
+        localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(assets));
+      }
+
+      function saveMaintenanceHistory() {
+        localStorage.setItem(STORAGE_KEYS.MAINTENANCE_HISTORY, JSON.stringify(maintenanceHistory));
+      }
+
+      // Dashboard Update
+      function updateDashboard() {
+        totalAssetsDiv.textContent = `Assets: ${assets.length}`;
+        const highRiskCount = assets.reduce((count, a) => count + (a.rpn > 400 ? 1 : 0), 0);
+        highRiskAssetsDiv.textContent = `High Risk: ${highRiskCount}`;
+        totalMaintenanceDiv.textContent = `Maintenance Records: ${maintenanceHistory.length}`;
+      }
+
+      function renderRiskChart(filteredAssets = assets) {
+        if(window.riskChartInstance) {
+          window.riskChartInstance.destroy();
+        }
+        const labels = filteredAssets.map(a => a.assetName + ' (' + a.failureMode + ')');
+        const riskData = filteredAssets.map(a => a.rpn);
+        const barColors = filteredAssets.map(a => colorForRisk(a.rpn));
+
+        window.riskChartInstance = new Chart(riskChartCtx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Risk Priority Number (RPN)',
+              data: riskData,
+              backgroundColor: barColors,
+              borderRadius: 4,
+              borderSkipped: false
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 1000,
+                title: {
+                  display: true,
+                  text: 'RPN Value'
+                }
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const index = context.dataIndex;
+                    if(index !== undefined && filteredAssets[index]) {
+                      return `RPN: ${filteredAssets[index].rpn} - Strategy: ${filteredAssets[index].strategy}`;
+                    }
+                    return context.dataset.label + ': ' + context.parsed.y;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Sorting utility for arrays of objects by key
+      function sortByKey(arr, key, order = 'asc') {
+        return arr.slice().sort((a, b) => {
+          let vA = a[key];
+          let vB = b[key];
+          // For dates, convert to time
+          if(key === 'date') {
+            vA = new Date(vA).getTime();
+            vB = new Date(vB).getTime();
+          }
+          if(typeof vA === 'string') {
+            vA = vA.toLowerCase();
+            vB = vB.toLowerCase();
+          }
+          if(vA < vB) return order === 'asc' ? -1 : 1;
+          if(vA > vB) return order === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      // Make table sortable by clicking headers utility
+      function makeTableSortable(tableEl, sortState, renderFunc) {
+        const headers = tableEl.querySelectorAll('thead th');
+        headers.forEach(th => {
+          th.addEventListener('click', () => {
+            const key = th.dataset.key;
+            if(!key) return;
+            if(sortState.key === key) {
+              sortState.order = sortState.order === 'asc' ? 'desc' : 'asc';
+            } else {
+              sortState.key = key;
+              sortState.order = 'asc';
+            }
+            headers.forEach(h => {
+              h.classList.remove('sort-asc', 'sort-desc');
+              if(h.dataset.key === sortState.key) {
+                h.classList.add(sortState.order === 'asc' ? 'sort-asc' : 'sort-desc');
+                h.setAttribute('aria-sort', sortState.order === 'asc' ? 'ascending' : 'descending');
+              } else {
+                h.setAttribute('aria-sort', 'none');
+              }
+            });
+            renderFunc();
+          });
+          // Accessibility: Also listen on Enter key when th focused
+          th.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              th.click();
+            }
+          });
+        });
+        // Initialize aria-sort attributes
+        headers.forEach(h => h.setAttribute('aria-sort', 'none'));
+      }
+
+      function updateRiskSummary(filteredAssets = assets) {
+        if(filteredAssets.length === 0) {
+          riskSummary.innerHTML = '<p>No matching asset data.</p>';
+          return;
+        }
+        // Sort before rendering
+        const sortedAssets = sortByKey(filteredAssets, riskTableSortState.key, riskTableSortState.order);
+        const rows = sortedAssets.map(a => {
+          return `<tr style="background:${colorForRisk(a.rpn)}44" tabindex="0">
+            <td>${a.assetName}</td>
+            <td>${a.failureMode}</td>
+            <td>${a.rpn}</td>
+            <td>${a.strategy}</td>
+          </tr>`;
+        }).join('');
+        riskSummary.innerHTML =
+          `<table style="width:100%; border-collapse: collapse; margin-top:0.6rem; color:#f0f0f0;" role="grid">
+            <thead>
+              <tr>
+                <th data-key="assetName" tabindex="0" aria-sort="none" scope="col">Asset</th>
+                <th data-key="failureMode" tabindex="0" aria-sort="none" scope="col">Failure Mode</th>
+                <th data-key="rpn" tabindex="0" aria-sort="none" scope="col">RPN</th>
+                <th data-key="strategy" tabindex="0" aria-sort="none" scope="col">Maintenance Strategy</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+        // Make the risk summary table headers sortable and update UI states
+        const tableEl = riskSummary.querySelector('table');
+        makeTableSortable(tableEl, riskTableSortState, () => {
+          updateRiskSummary(filteredAssets);
+          renderRiskChart(filteredAssets);
+        });
+      }
+
+      // Maintenance History section
+      function renderHistory(filteredHistory = maintenanceHistory) {
+        if(filteredHistory.length === 0) {
+          historyTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:1rem;">No maintenance records available.</td></tr>';
+          return;
+        }
+        // Sort records by current sort state
+        const sortedRecords = sortByKey(filteredHistory, historySortState.key, historySortState.order);
+        const rows = sortedRecords.map(record => {
+          const dateStr = new Date(record.date).toLocaleDateString();
+          return `<tr tabindex="0">
+            <td>${record.assetName}</td>
+            <td>${dateStr}</td>
+            <td>${record.description || ''}</td>
+          </tr>`;
+        }).join('');
+        historyTableBody.innerHTML = rows;
+      }
+
+      // Filter utilities
+      function filterAssets(query) {
+        const q = query.trim().toLowerCase();
+        if (!q) return assets;
+        return assets.filter(a =>
+          a.assetName.toLowerCase().includes(q) ||
+          a.failureMode.toLowerCase().includes(q));
+      }
+      function filterHistory(query) {
+        const q = query.trim().toLowerCase();
+        if (!q) return maintenanceHistory;
+        return maintenanceHistory.filter(h =>
+          h.assetName.toLowerCase().includes(q) ||
+          (h.description && h.description.toLowerCase().includes(q))
+        );
+      }
+
+      // CSV Export helper
+      function exportCSV(dataArr, headers, filename) {
+        if(!dataArr.length) {
+          alert('No data to export.');
+          return;
+        }
+        const csvRows = [];
+        csvRows.push(headers.join(','));
+        dataArr.forEach(item => {
+          const row = headers.map(h => {
+            let val = item[h] ?? '';
+            if(typeof val === 'string') {
+              val = val.replace(/"/g, '""'); // escape quotes
+              if(val.search(/("|,|\n)/g) >= 0) {
+                val = `"${val}"`;
+              }
+            }
+            return val;
+          });
+          csvRows.push(row.join(','));
+        });
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      assetForm.addEventListener('submit', e => {
+        e.preventDefault();
+        // gather input
+        const assetName = assetForm.assetName.value.trim();
+        const failureMode = assetForm.failureMode.value.trim();
+        const failureEffect = assetForm.failureEffect.value.trim();
+        const probability = Number(assetForm.probability.value);
+        const severity = Number(assetForm.severity.value);
+        const detectability = Number(assetForm.detectability.value);
+
+        if (!assetName || !failureMode || !probability || !severity || !detectability) {
+          alert('Please fill in all required fields correctly.');
+          return;
+        }
+
+        const rpn = calculateRPN(probability, severity, detectability);
+        const strategy = assignStrategy(rpn);
+
+        // Check if asset+failureMode already exists - update, else add
+        const existingIndex = assets.findIndex(a => a.assetName === assetName && a.failureMode === failureMode);
+        if(existingIndex > -1) {
+          assets[existingIndex] = { assetName, failureMode, failureEffect, probability, severity, detectability, rpn, strategy };
+        } else {
+          assets.push({ assetName, failureMode, failureEffect, probability, severity, detectability, rpn, strategy });
+        }
+
+        saveAssets();
+        updateDashboard();
+        updateRiskSummary();
+        renderRiskChart();
+
+        assetForm.reset();
+        assetForm.assetName.focus();
+      });
+
+      historyForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const assetName = historyForm.historyAsset.value.trim();
+        const date = historyForm.maintenanceDate.value;
+        const description = historyForm.maintenanceDesc.value.trim();
+
+        if(!assetName || !date) {
+          alert('Please fill in the asset name and maintenance date.');
+          return;
+        }
+
+        maintenanceHistory.push({ assetName, date, description });
+        saveMaintenanceHistory();
+        updateDashboard();
+        renderHistory();
+
+        historyForm.reset();
+        historyForm.historyAsset.focus();
+      });
+
+      // Search handlers
+      searchAssetsInput.addEventListener('input', () => {
+        const filtered = filterAssets(searchAssetsInput.value);
+        updateRiskSummary(filtered);
+        renderRiskChart(filtered);
+      });
+
+      searchHistoryInput.addEventListener('input', () => {
+        const filtered = filterHistory(searchHistoryInput.value);
+        renderHistory(filtered);
+      });
+
+      // CSV Export buttons
+      exportAssetsBtn.addEventListener('click', () => {
+        if(assets.length === 0) {
+          alert('No asset data to export.');
+          return;
+        }
+        // Export all assets as CSV
+        const headers = ['assetName', 'failureMode', 'failureEffect', 'probability', 'severity', 'detectability', 'rpn', 'strategy'];
+        exportCSV(assets, headers, 'rcm_assets_export.csv');
+      });
+
+      exportHistoryBtn.addEventListener('click', () => {
+        if(maintenanceHistory.length === 0) {
+          alert('No maintenance data to export.');
+          return;
+        }
+        const headers = ['assetName', 'date', 'description'];
+        exportCSV(maintenanceHistory, headers, 'rcm_maintenance_history_export.csv');
+      });
+
+      // Initialize dashboard & UI on load
+      updateDashboard();
+      updateRiskSummary();
+      renderRiskChart();
+      renderHistory();
+    })();
+  </script>
+</body>
+</html>
+
